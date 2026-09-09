@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import 'mathlive';
 import './App.css';
 
@@ -17,6 +17,7 @@ function App() {
   const pageRef = useRef(null);
   const lastFocusedMathField = useRef(null);
   const savedRange = useRef(null);
+  const [darkMode, setDarkMode] = useState(true);
 
   const saveSelection = () => {
     const sel = window.getSelection();
@@ -56,14 +57,30 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <div className="toolbar" onMouseDown={(e) => e.preventDefault()}>
-        <button onClick={insertFormula}>+ Formel</button>
-        {SYMBOLS.map((s) => (
-          <button key={s.label} onClick={() => insertSymbol(s.insert)}>
-            {s.label}
-          </button>
-        ))}
+    <div className={darkMode ? 'app dark' : 'app light'}>
+      <div className="header-bar">
+        <h1>📐 Math Notizen</h1>
+        <button className="mode-toggle" onClick={() => setDarkMode(!darkMode)}>
+          {darkMode ? '☀️ Light' : '🌙 Dark'}
+        </button>
+      </div>
+
+      <div className="ribbon" onMouseDown={(e) => e.preventDefault()}>
+        <div className="ribbon-group">
+          <span className="ribbon-label">Einfügen</span>
+          <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
+        </div>
+        <div className="ribbon-divider"></div>
+        <div className="ribbon-group">
+          <span className="ribbon-label">Symbole</span>
+          <div className="symbol-row">
+            {SYMBOLS.map((s) => (
+              <button key={s.label} onClick={() => insertSymbol(s.insert)}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div
