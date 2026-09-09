@@ -144,10 +144,18 @@ body:has(.app.dark) {
   outline: none;
 }
 
-.page-sheet:empty::before {
-  content: 'Hier schreiben...';
-  color: #999;
-  pointer-events: none;
+.page-sheet {
+  background: white;
+  color: black;
+  max-width: 850px;
+  margin: 0 auto;
+  min-height: 1000px;
+  padding: 60px;
+  font-size: 18px;
+  line-height: 1.8;
+  border-radius: 4px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  outline: none;
 }
 
 .inline-formula {
