@@ -57,9 +57,9 @@ function App() {
   };
 
   return (
-    <div className={darkMode ? 'app dark' : 'app light'}>
+    <div className={'app ' + (darkMode ? 'dark' : 'light')}>
       <div className="header-bar">
-        <h1>📐 Math Notizen</h1>
+        <h1>📐 Mathe Schulübungen-Notizen</h1>
         <button className="mode-toggle" onClick={() => setDarkMode(!darkMode)}>
           {darkMode ? '☀️ Light' : '🌙 Dark'}
         </button>

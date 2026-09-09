@@ -16,8 +16,18 @@
   --text: #222;
 }
 
-body {
+html, body {
   margin: 0;
+  height: 100%;
+  background: var(--bg);
+}
+
+body:has(.app.light) {
+  background: #f4f4f4;
+}
+
+body:has(.app.dark) {
+  background: #121212;
 }
 
 .app {
@@ -40,6 +50,7 @@ body {
 .header-bar h1 {
   font-size: 22px;
   margin: 0;
+  color: var(--text);
 }
 
 .mode-toggle {
@@ -123,7 +134,8 @@ body {
 .page-sheet {
   background: white;
   color: black;
-  min-height: 1000px;
+  min-height: 1123px;
+  width: 794px;
   padding: 60px;
   font-size: 18px;
   line-height: 1.8;
@@ -145,4 +157,5 @@ body {
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 2px 6px;
+  min-width: 20px;
 }
