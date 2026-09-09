@@ -64,7 +64,7 @@ function App() {
   return (
     <div className={'app ' + (darkMode ? 'dark' : 'light')}>
       <div className="header-bar">
-        <h1>📐 Mathe Schulübungen-Notizen</h1>
+        <h1>Mathe Schulübungen-Notizen</h1>
         <button className="mode-toggle" onClick={() => setDarkMode(!darkMode)}>
           {darkMode ? '☀️ Light' : '🌙 Dark'}
         </button>
@@ -75,7 +75,9 @@ function App() {
           <span className="ribbon-label">Einfügen</span>
           <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
         </div>
+
         <div className="ribbon-divider"></div>
+
         <div className="ribbon-group">
           <span className="ribbon-label">Symbole</span>
           <div className="symbol-row">
@@ -84,6 +86,18 @@ function App() {
                 {s.label}
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="ribbon-divider"></div>
+
+        <div className="ribbon-group">
+          <span className="ribbon-label">Format</span>
+          <div className="symbol-row">
+            <button onClick={() => formatText('bold')}><b>F</b></button>
+            <button onClick={() => formatText('underline')}><u>U</u></button>
+            <button onClick={() => formatText('foreColor', '#e63946')}>A</button>
+            <button onClick={() => formatText('hiliteColor', '#fff176')}>H</button>
           </div>
         </div>
       </div>
@@ -96,27 +110,6 @@ function App() {
         onMouseUp={saveSelection}
         onKeyUp={saveSelection}
       >
-      </div>
-              <div className="ribbon-group">
-          <span className="ribbon-label">Symbole</span>
-          <div className="symbol-row">
-            {SYMBOLS.map((s) => (
-              <button key={s.label} onClick={() => insertSymbol(s.insert)}>
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="ribbon-divider"></div>
-        <div className="ribbon-group">
-          <span className="ribbon-label">Format</span>
-          <div className="symbol-row">
-            <button onClick={() => formatText('bold')}><b>F</b></button>
-            <button onClick={() => formatText('underline')}><u>U</u></button>
-            <button onClick={() => formatText('foreColor', '#e63946')}>A</button>
-            <button onClick={() => formatText('hiliteColor', '#fff176')}>H</button>
-          </div>
       </div>
     </div>
   );
