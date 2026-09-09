@@ -27,34 +27,66 @@ function App() {
   };
 
   const insertFormula = () => {
-    const mathField = document.createElement('math-field');
-    mathField.className = 'inline-formula';
-    mathField.style.fontSize = '20px';
+  const mathField = document.createElement('math-field');
+  mathField.className = 'inline-formula';
+  mathField.style.fontSize = '20px';
 
-    const range = savedRange.current;
-    if (range) {
-      range.deleteContents();
-      range.insertNode(mathField);
-      range.collapse(false);
-      const space = document.createTextNode('\u00A0');
-      range.insertNode(space);
-    } else if (pageRef.current) {
-      pageRef.current.appendChild(mathField);
+  const range = savedRange.current;
+  let spaceNode;
+  if (range) {
+    range.deleteContents();
+    range.insertNode(mathField);
+    range.collapse(false);
+    spaceNode = document.createTextNode('\u00A0');
+    range.insertNode(spaceNode);
+  } else if (pageRef.current) {
+    spaceNode = document.createTextNode('\u00A0');
+    pageRef.current.appendChild(mathField);
+    pageRef.current.appendChild(spaceNode);
+  }
+
+  mathField.addEventListener('focus', () => {
+    lastFocusedMathField.current = mathField;
+  });
+
+  mathField.addEventListener('blur', () => {
+    if (mathField.value.trim() === '') {
+      mathField.remove();
+      if (spaceNode) spaceNode.remove();
     }
+    if (lastFocusedMathField.current === mathField) {
+      lastFocusedMathField.current = null;
+    }
+  });
 
-    mathField.addEventListener('focus', () => {
-      lastFocusedMathField.current = mathField;
-    });
+  mathField.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      mathField.blur();
 
-    setTimeout(() => mathField.focus(), 0);
-  };
+      const range = document.createRange();
+      const sel = window.getSelection();
+      if (mathField.nextSibling) {
+        range.setStartAfter(mathField.nextSibling);
+      } else {
+        range.setStartAfter(mathField);
+      }
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      pageRef.current.focus();
+    }
+  });
+
+  setTimeout(() => mathField.focus(), 0);
+};
 
   const insertSymbol = (latex) => {
-    if (lastFocusedMathField.current) {
-      lastFocusedMathField.current.executeCommand(['insert', latex]);
-      lastFocusedMathField.current.focus();
-    }
-  };
+  if (lastFocusedMathField.current) {
+    lastFocusedMathField.current.executeCommand(['insert', latex]);
+    lastFocusedMathField.current.focus();
+  }
+};
 
   const formatText = (command, value = null) => {
     document.execCommand(command, false, value);
@@ -98,6 +130,9 @@ function App() {
             <button onClick={() => formatText('underline')}><u>U</u></button>
             <button onClick={() => formatText('foreColor', '#e63946')}>A</button>
             <button onClick={() => formatText('hiliteColor', '#fff176')}>H</button>
+            <button onClick={() => formatText('justifyLeft')}>⯇</button>
+            <button onClick={() => formatText('justifyCenter')}>≡</button>
+            <button onClick={() => formatText('justifyRight')}>⯈</button>
           </div>
         </div>
       </div>

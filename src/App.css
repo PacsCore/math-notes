@@ -132,6 +132,7 @@ body:has(.app.dark) {
 }
 
 .page-sheet {
+  font-family: 'Georgia', 'Times New Roman', serif;
   background: white;
   color: black;
   min-height: 1123px;
