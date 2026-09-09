@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import 'mathlive';
 import './App.css';
 
@@ -11,40 +11,70 @@ const SYMBOLS = [
   { label: 'a/b', insert: '\\frac{}{}' },
   { label: '∞', insert: '\\infty' },
   { label: '∑', insert: '\\sum_{}^{}' },
-  { label: '≤', insert: '\\leq' },
-  { label: '≥', insert: '\\geq' },
-  { label: 'α', insert: '\\alpha' },
-  { label: '→', insert: '\\rightarrow' },
 ];
 
 function App() {
-  const mathFieldRef = useRef(null);
+  const pageRef = useRef(null);
+  const lastFocusedMathField = useRef(null);
+  const savedRange = useRef(null);
 
-  useEffect(() => {
-    if (mathFieldRef.current) {
-      mathFieldRef.current.value = '';
+  const saveSelection = () => {
+    const sel = window.getSelection();
+    if (sel.rangeCount > 0) {
+      savedRange.current = sel.getRangeAt(0);
     }
-  }, []);
+  };
+
+  const insertFormula = () => {
+    const mathField = document.createElement('math-field');
+    mathField.className = 'inline-formula';
+    mathField.style.fontSize = '20px';
+
+    const range = savedRange.current;
+    if (range) {
+      range.deleteContents();
+      range.insertNode(mathField);
+      range.collapse(false);
+      const space = document.createTextNode('\u00A0');
+      range.insertNode(space);
+    } else if (pageRef.current) {
+      pageRef.current.appendChild(mathField);
+    }
+
+    mathField.addEventListener('focus', () => {
+      lastFocusedMathField.current = mathField;
+    });
+
+    setTimeout(() => mathField.focus(), 0);
+  };
 
   const insertSymbol = (latex) => {
-    if (mathFieldRef.current) {
-      mathFieldRef.current.executeCommand(['insert', latex]);
-      mathFieldRef.current.focus();
+    if (lastFocusedMathField.current) {
+      lastFocusedMathField.current.executeCommand(['insert', latex]);
+      lastFocusedMathField.current.focus();
     }
   };
 
   return (
-    <div className="page">
-      <h1>Math Notizen</h1>
-      <div className="toolbar">
+    <div className="app">
+      <div className="toolbar" onMouseDown={(e) => e.preventDefault()}>
+        <button onClick={insertFormula}>+ Formel</button>
         {SYMBOLS.map((s) => (
           <button key={s.label} onClick={() => insertSymbol(s.insert)}>
             {s.label}
           </button>
         ))}
       </div>
-      <math-field ref={mathFieldRef} style={{ fontSize: '24px', width: '100%', minHeight: '60px', border: '1px solid #ccc', padding: '10px' }}>
-      </math-field>
+
+      <div
+        ref={pageRef}
+        className="page-sheet"
+        contentEditable
+        suppressContentEditableWarning
+        onMouseUp={saveSelection}
+        onKeyUp={saveSelection}
+      >
+      </div>
     </div>
   );
 }
