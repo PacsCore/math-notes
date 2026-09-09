@@ -81,16 +81,6 @@ function App() {
           <div className="symbol-row">
             {SYMBOLS.map((s) => (
               <button key={s.label} onClick={() => insertSymbol(s.insert)}>
-                <div className="ribbon-divider"></div>
-                <div className="ribbon-group">
-                  <span className="ribbon-label">Format</span>
-                  <div className="symbol-row">
-                    <button onClick={() => formatText('bold')}><b>F</b></button>
-                    <button onClick={() => formatText('underline')}><u>U</u></button>
-                    <button onClick={() => formatText('foreColor', '#e63946')}>A</button>
-                    <button onClick={() => formatText('hiliteColor', '#fff176')}>H</button>
-                  </div>
-                </div>
                 {s.label}
               </button>
             ))}
@@ -106,6 +96,27 @@ function App() {
         onMouseUp={saveSelection}
         onKeyUp={saveSelection}
       >
+      </div>
+              <div className="ribbon-group">
+          <span className="ribbon-label">Symbole</span>
+          <div className="symbol-row">
+            {SYMBOLS.map((s) => (
+              <button key={s.label} onClick={() => insertSymbol(s.insert)}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="ribbon-divider"></div>
+        <div className="ribbon-group">
+          <span className="ribbon-label">Format</span>
+          <div className="symbol-row">
+            <button onClick={() => formatText('bold')}><b>F</b></button>
+            <button onClick={() => formatText('underline')}><u>U</u></button>
+            <button onClick={() => formatText('foreColor', '#e63946')}>A</button>
+            <button onClick={() => formatText('hiliteColor', '#fff176')}>H</button>
+          </div>
       </div>
     </div>
   );
