@@ -105,6 +105,16 @@ function App() {
     }
   };
 
+  const undo = () => {
+    document.executeCommand('undo');
+    pageRef.current.focus();
+  };
+
+  const redo = () => {
+    document.execCommand('redo');
+    pageRef.current.focus();
+  }
+
   const toggleMathKeyboard = () => {
     if (window.mathVirtualKeyboard) {
       window.mathVirtualKeyboard.visible = !window.mathVirtualKeyboard.visible;
@@ -123,14 +133,17 @@ function App() {
       <div className="ribbon" onMouseDown={(e) => e.preventDefault()}>
         <div className="ribbon-row">
           <div className="ribbon-group">
-            <span className="ribbon-label">Einfügen</span>
-            <div className="symbol-row">
-              <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
-              <button onClick={toggleMathKeyboard} title="Mathe-Tastatur">⌨️</button>
-            </div>
+            <span className="ribbon-label">Verlauf</span>
+          <div className="symbol-row">
+            <button onClick={undo} title="Rückgängig">↻</button>
+            <button onClick={redo} title="Wiederholen">↻</button>
           </div>
-
-        <div className="ribbon-divider"></div>
+          <span className="ribbon-label">Einfügen</span>
+          <div className="symbol-row">
+            <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
+            <button onClick={toggleMathKeyboard} title="Mathe-Tastatur">⌨️</button>
+          </div>
+        </div>
 
         <div className="ribbon-group">
           <span className="ribbon-label">Symbole</span>
