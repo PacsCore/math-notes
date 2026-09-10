@@ -121,13 +121,14 @@ function App() {
       </div>
 
       <div className="ribbon" onMouseDown={(e) => e.preventDefault()}>
-        <div className="ribbon-group">
-          <span className="ribbon-label">Einfügen</span>
-          <div className="symbol-row">
-            <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
-            <button onClick={toggleMathKeyboard} title="Mathe-Tastatur">⌨️</button>
+        <div className="ribbon-row">
+          <div className="ribbon-group">
+            <span className="ribbon-label">Einfügen</span>
+            <div className="symbol-row">
+              <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
+              <button onClick={toggleMathKeyboard} title="Mathe-Tastatur">⌨️</button>
+            </div>
           </div>
-        </div>
 
         <div className="ribbon-divider"></div>
 
@@ -155,18 +156,21 @@ function App() {
 
         <div className="ribbon-divider"></div>
 
-        <div className="ribbon-group">
-          <span className="ribbon-label">Format</span>
-          <div className="symbol-row">
-            <button onClick={() => formatText('bold')}><b>F</b></button>
-            <button onClick={() => formatText('underline')}><u>U</u></button>
-            <button onClick={() => formatText('foreColor', '#e63946')}>A</button>
-            <button onClick={() => formatText('hiliteColor', '#fff176')}>H</button>
-            <button onClick={() => formatText('justifyLeft')}>⯇</button>
-            <button onClick={() => formatText('justifyCenter')}>≡</button>
-            <button onClick={() => formatText('justifyRight')}>⯈</button>
+        <div className="ribbon-row">
+          <div className="ribbon-group">
+            <span className="ribbon-label">Format</span>
+            <div className="symbol-row">
+              <button onClick={() => formatText('bold')}><b>F</b></button>
+              <button onClick={() => formatText('underline')}><u>U</u></button>
+              <button onClick={() => formatText('foreColor', '#e63946')}>A</button>
+              <button onClick={() => formatText('hiliteColor', '#fff176')}>H</button>
+              <button onClick={() => formatText('justifyLeft')}>⯇</button>
+              <button onClick={() => formatText('justifyCenter')}>≡</button>
+              <button onClick={() => formatText('justifyRight')}>⯈</button>
+            </div>
           </div>
         </div>
+      </div>
       </div>
 
       <div

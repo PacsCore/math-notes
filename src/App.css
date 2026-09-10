@@ -69,17 +69,26 @@ body:has(.app.dark) {
 
 .ribbon {
   display: flex;
+  flex-wrap: nowrap;
   align-items: flex-start;
-  gap: 20px;
+  gap: 12px;
+  width: 1000px;
+  margin: 0 auto 16px;
   background: var(--toolbar-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px 16px;
-  margin-bottom: 16px;
+  overflow-x: auto;
   position: sticky;
   top: 10px;
   z-index: 10;
-  flex-wrap: wrap;
+}
+
+.ribbon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .ribbon-group {
