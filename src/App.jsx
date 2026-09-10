@@ -103,6 +103,14 @@ function App() {
       e.preventDefault();
       document.execCommand('insertText', false, '\u00A0\u00A0\u00A0\u00A0');
     }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      document.execCommand('undo');
+    } 
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+      e.preventDefault();
+      document.execCommand('redo');
+    }
   };
 
   const undo = () => {
