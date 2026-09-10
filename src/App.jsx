@@ -17,11 +17,58 @@ const SYMBOLS = [
   { label: '∑', insert: '\\sum_{}^{}' },
 ];
 
+const translations = {
+  de: {
+    history: 'Verlauf',
+    undo: 'Rückgängig',
+    redo: 'Wiederholen',
+    insert: 'Einfügen',
+    formula: '+ Formel',
+    mathKeyboard: 'Mathe-Tastatur',
+    coordinateSystem: '+ Koordinatensystem',
+    symbols: 'Symbole',
+    textSize: 'Textgröße',
+    normal: 'Normal',
+    format: 'Format',
+    removeHighlight: 'Markierung entfernen',
+    export: 'Export',
+    word: '⬇ Word',
+    light: '☀️ Hell',
+    dark: '🌙 Dunkel',
+    language: 'Sprache wechseln',
+    functionLabel: 'f(x) = ',
+    functionPlaceholder: 'z.B. x^2',
+  },
+  en: {
+    history: 'History',
+    undo: 'Undo',
+    redo: 'Redo',
+    insert: 'Insert',
+    formula: '+ Formula',
+    mathKeyboard: 'Math keyboard',
+    coordinateSystem: '+ Coordinate system',
+    symbols: 'Symbols',
+    textSize: 'Text size',
+    normal: 'Normal',
+    format: 'Format',
+    removeHighlight: 'Remove highlight',
+    export: 'Export',
+    word: '⬇ Word',
+    light: '☀️ Light',
+    dark: '🌙 Dark',
+    language: 'Switch language',
+    functionLabel: 'f(x) = ',
+    functionPlaceholder: 'e.g. x^2',
+  },
+};
+
 function App() {
   const pageRef = useRef(null);
   const lastFocusedMathField = useRef(null);
   const savedRange = useRef(null);
   const [darkMode, setDarkMode] = useState(true);
+  const [language, setLanguage] = useState('de');
+  const t = (key) => translations[language][key];
 
   const saveSelection = () => {
     const sel = window.getSelection();
@@ -98,7 +145,7 @@ function App() {
 
   const input = document.createElement('input');
   input.type = 'text';
-  input.placeholder = 'z.B. x^2';
+  input.placeholder = t('functionPlaceholder');
   input.className = 'coord-input';
 
   const renderPlot = (fn) => {
@@ -123,7 +170,7 @@ function App() {
     }
   });
 
-  inputRow.appendChild(document.createTextNode('f(x) = '));
+  inputRow.appendChild(document.createTextNode(t('functionLabel')));
   inputRow.appendChild(input);
   wrapper.appendChild(inputRow);
   wrapper.appendChild(plotDiv);
@@ -313,38 +360,47 @@ const exportToWord = async () => {
   };
 
   return (
-    <div className={'app ' + (darkMode ? 'dark' : 'light')}>
+    <div className={'app ' + (darkMode ? 'dark' : 'light') + ' lang-' + language}>
       <div className="header-bar">
         <h1>FastNotes: Math</h1>
-        <button className="mode-toggle" onClick={() => setDarkMode(!darkMode)}>
-          {darkMode ? '☀️ Light' : '🌙 Dark'}
-        </button>
+        <div className="header-actions">
+          <button
+            className="mode-toggle"
+            onClick={() => setLanguage(language === 'de' ? 'en' : 'de')}
+            title={t('language')}
+          >
+            {language.toUpperCase()}
+          </button>
+          <button className="mode-toggle" onClick={() => setDarkMode(!darkMode)}>
+            {darkMode ? t('light') : t('dark')}
+          </button>
+        </div>
       </div>
 
       <div className="ribbon" onMouseDown={(e) => e.preventDefault()}>
         <div className="ribbon-group">
-          <span className="ribbon-label">Verlauf</span>
+          <span className="ribbon-label">{t('history')}</span>
           <div className="symbol-row">
-            <button onClick={undo} title="Rückgängig">↺</button>
-            <button onClick={redo} title="Wiederholen">↻</button>
+            <button onClick={undo} title={t('undo')}>↺</button>
+            <button onClick={redo} title={t('redo')}>↻</button>
           </div>
         </div>
 
         <div className="ribbon-divider"></div>
 
         <div className="ribbon-group">
-          <span className="ribbon-label">Einfügen</span>
+          <span className="ribbon-label">{t('insert')}</span>
           <div className="symbol-row">
-            <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
-            <button onClick={toggleMathKeyboard} title="Mathe-Tastatur">⌨️</button>
-            <button onClick={insertCoordSystem}>+ Koordinatensystem</button>
+            <button className="primary-btn" onClick={insertFormula}>{t('formula')}</button>
+            <button onClick={toggleMathKeyboard} title={t('mathKeyboard')}>⌨️</button>
+            <button onClick={insertCoordSystem}>{t('coordinateSystem')}</button>
           </div>
         </div>
 
         <div className="ribbon-divider"></div>
 
         <div className="ribbon-group">
-          <span className="ribbon-label">Symbole</span>
+          <span className="ribbon-label">{t('symbols')}</span>
           <div className="symbol-row">
             {SYMBOLS.map((s) => (
               <button key={s.label} onClick={() => insertSymbol(s.insert)}>
@@ -357,24 +413,24 @@ const exportToWord = async () => {
         <div className="ribbon-divider"></div>
 
         <div className="ribbon-group">
-          <span className="ribbon-label">Textgröße</span>
+          <span className="ribbon-label">{t('textSize')}</span>
           <div className="symbol-row">
             <button onClick={() => setHeading('H1')}>H1</button>
             <button onClick={() => setHeading('H2')}>H2</button>
-            <button onClick={() => setHeading('P')}>Normal</button>
+            <button onClick={() => setHeading('P')}>{t('normal')}</button>
           </div>
         </div>
 
         <div className="ribbon-divider"></div>
 
         <div className="ribbon-group">
-          <span className="ribbon-label">Format</span>
+          <span className="ribbon-label">{t('format')}</span>
           <div className="symbol-row">
             <button onClick={() => formatText('bold')}><b>F</b></button>
             <button onClick={() => formatText('underline')}><u>U</u></button>
             <button onClick={() => formatText('foreColor', '#e63946')}>A</button>
             <button onClick={() => formatText('hiliteColor', '#fff176')}>H</button>
-            <button onClick={removeHighlight} title="Markierung entfernen">H̶</button>
+            <button onClick={removeHighlight} title={t('removeHighlight')}>H̶</button>
             <button onClick={() => formatText('justifyLeft')}>⯇</button>
             <button onClick={() => formatText('justifyCenter')}>≡</button>
             <button onClick={() => formatText('justifyRight')}>⯈</button>
@@ -384,9 +440,9 @@ const exportToWord = async () => {
         <div className="ribbon-divider"></div>
 
         <div className="ribbon-group">
-          <span className="ribbon-label">Export</span>
+          <span className="ribbon-label">{t('export')}</span>
           <div className="symbol-row">
-            <button className="primary-btn" onClick={exportToWord}>⬇ Word</button>
+            <button className="primary-btn" onClick={exportToWord}>{t('word')}</button>
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@
   --btn-bg: #2a2a2a;
   --btn-hover: #3a3a3a;
   --text: #eee;
+  --page-placeholder: 'Hier schreiben...';
 }
 
 .app.light {
@@ -14,6 +15,10 @@
   --btn-bg: #f0f0f0;
   --btn-hover: #e0e0e0;
   --text: #222;
+}
+
+.app.lang-en {
+  --page-placeholder: 'Start writing...';
 }
 
 html, body {
@@ -45,6 +50,11 @@ body:has(.app.dark) {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .header-bar h1 {
@@ -154,6 +164,11 @@ body:has(.app.dark) {
   border-radius: 4px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.3);
   outline: none;
+}
+
+.page-sheet:empty::before {
+  content: var(--page-placeholder);
+  color: #777;
 }
 
 .page-sheet h1,
