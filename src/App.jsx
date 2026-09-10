@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import 'mathlive';
+import functionPlot from 'function-plot';
 import './App.css';
 
 const SYMBOLS = [
@@ -81,6 +82,62 @@ function App() {
     setTimeout(() => mathField.focus(), 0);
   };
 
+  const insertCoordSystem = () => {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'coord-wrapper';
+  wrapper.contentEditable = 'false';
+
+  const plotDiv = document.createElement('div');
+  plotDiv.className = 'coord-plot';
+
+  const inputRow = document.createElement('div');
+  inputRow.className = 'coord-input-row';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'z.B. x^2';
+  input.className = 'coord-input';
+
+  const renderPlot = (fn) => {
+    plotDiv.innerHTML = '';
+    try {
+      functionPlot({
+        target: plotDiv,
+        width: 500,
+        height: 350,
+        grid: true,
+        data: fn ? [{ fn }] : [],
+      });
+    } catch (err) {
+    }
+  };
+
+  input.addEventListener('input', () => renderPlot(input.value));
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+    }
+  });
+
+  inputRow.appendChild(document.createTextNode('f(x) = '));
+  inputRow.appendChild(input);
+  wrapper.appendChild(inputRow);
+  wrapper.appendChild(plotDiv);
+
+  const range = savedRange.current;
+  if (range) {
+    range.deleteContents();
+    range.insertNode(wrapper);
+    const space = document.createTextNode('\u00A0');
+    wrapper.after(space);
+  } else if (pageRef.current) {
+    pageRef.current.appendChild(wrapper);
+  }
+
+  renderPlot('');
+  setTimeout(() => input.focus(), 0);
+};
+
   const insertSymbol = (latex) => {
     if (lastFocusedMathField.current) {
       lastFocusedMathField.current.executeCommand(['insert', latex]);
@@ -93,8 +150,23 @@ function App() {
     pageRef.current.focus();
   };
 
+  const removeHighlight = () => {
+    document.execCommand('hiliteColor', false, 'transparent');
+    pageRef.current.focus();
+  };
+
   const setHeading = (tag) => {
     document.execCommand('formatBlock', false, tag);
+    pageRef.current.focus();
+  };
+
+  const undo = () => {
+    document.execCommand('undo');
+    pageRef.current.focus();
+  };
+
+  const redo = () => {
+    document.execCommand('redo');
     pageRef.current.focus();
   };
 
@@ -106,22 +178,12 @@ function App() {
     if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
       e.preventDefault();
       document.execCommand('undo');
-    } 
+    }
     if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
       e.preventDefault();
       document.execCommand('redo');
     }
   };
-
-  const undo = () => {
-    document.execCommand('undo');
-    pageRef.current.focus();
-  };
-
-  const redo = () => {
-    document.execCommand('redo');
-    pageRef.current.focus();
-  }
 
   const toggleMathKeyboard = () => {
     if (window.mathVirtualKeyboard) {
@@ -139,19 +201,26 @@ function App() {
       </div>
 
       <div className="ribbon" onMouseDown={(e) => e.preventDefault()}>
-        <div className="ribbon-row">
-          <div className="ribbon-group">
-            <span className="ribbon-label">Verlauf</span>
+        <div className="ribbon-group">
+          <span className="ribbon-label">Verlauf</span>
           <div className="symbol-row">
-            <button onClick={undo} title="Rückgängig">↻</button>
+            <button onClick={undo} title="Rückgängig">↺</button>
             <button onClick={redo} title="Wiederholen">↻</button>
           </div>
+        </div>
+
+        <div className="ribbon-divider"></div>
+
+        <div className="ribbon-group">
           <span className="ribbon-label">Einfügen</span>
           <div className="symbol-row">
             <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
             <button onClick={toggleMathKeyboard} title="Mathe-Tastatur">⌨️</button>
+            <button onClick={insertCoordSystem}>+ koordinatensystem</button>
           </div>
         </div>
+
+        <div className="ribbon-divider"></div>
 
         <div className="ribbon-group">
           <span className="ribbon-label">Symbole</span>
@@ -177,21 +246,19 @@ function App() {
 
         <div className="ribbon-divider"></div>
 
-        <div className="ribbon-row">
-          <div className="ribbon-group">
-            <span className="ribbon-label">Format</span>
-            <div className="symbol-row">
-              <button onClick={() => formatText('bold')}><b>F</b></button>
-              <button onClick={() => formatText('underline')}><u>U</u></button>
-              <button onClick={() => formatText('foreColor', '#e63946')}>A</button>
-              <button onClick={() => formatText('hiliteColor', '#fff176')}>H</button>
-              <button onClick={() => formatText('justifyLeft')}>⯇</button>
-              <button onClick={() => formatText('justifyCenter')}>≡</button>
-              <button onClick={() => formatText('justifyRight')}>⯈</button>
-            </div>
+        <div className="ribbon-group">
+          <span className="ribbon-label">Format</span>
+          <div className="symbol-row">
+            <button onClick={() => formatText('bold')}><b>F</b></button>
+            <button onClick={() => formatText('underline')}><u>U</u></button>
+            <button onClick={() => formatText('foreColor', '#e63946')}>A</button>
+            <button onClick={() => formatText('hiliteColor', '#fff176')}>H</button>
+            <button onClick={removeHighlight} title="Markierung entfernen">H̶</button>
+            <button onClick={() => formatText('justifyLeft')}>⯇</button>
+            <button onClick={() => formatText('justifyCenter')}>≡</button>
+            <button onClick={() => formatText('justifyRight')}>⯈</button>
           </div>
         </div>
-      </div>
       </div>
 
       <div
