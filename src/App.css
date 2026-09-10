@@ -175,3 +175,32 @@ body:has(.app.dark) {
   padding: 2px 6px;
   min-width: 20px;
 }
+
+.coord-wrapper {
+  display: block;
+  margin: 16px 0;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fafafa;
+  width: 520px;
+  user-select: none;
+}
+
+.coord-input-row {
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-family: -apple-system, sans-serif;
+}
+
+.coord-input {
+  font-size: 15px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 200px;
+}
+
+.coord-plot svg {
+  overflow: visible;
+}
