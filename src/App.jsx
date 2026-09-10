@@ -96,7 +96,7 @@ function App() {
   return (
     <div className={'app ' + (darkMode ? 'dark' : 'light')}>
       <div className="header-bar">
-        <h1>Mathe Schulübungen-Notizen</h1>
+        <h1>FastNotes: Math</h1>
         <button className="mode-toggle" onClick={() => setDarkMode(!darkMode)}>
           {darkMode ? '☀️ Light' : '🌙 Dark'}
         </button>
