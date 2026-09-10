@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import 'mathlive';
-import functionPlot from 'function-plot';
+import * as fpModule from 'function-plot';
+const functionPlot = fpModule.default?.default || fpModule.default || fpModule;
 import './App.css';
 
 const SYMBOLS = [
@@ -109,6 +110,7 @@ function App() {
         data: fn ? [{ fn }] : [],
       });
     } catch (err) {
+      console.error('Plot-Fehler:', err)
     }
   };
 
@@ -216,7 +218,7 @@ function App() {
           <div className="symbol-row">
             <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
             <button onClick={toggleMathKeyboard} title="Mathe-Tastatur">⌨️</button>
-            <button onClick={insertCoordSystem}>+ koordinatensystem</button>
+            <button onClick={insertCoordSystem}>+ Koordinatensystem</button>
           </div>
         </div>
 
