@@ -114,7 +114,7 @@ function App() {
   };
 
   const undo = () => {
-    document.executeCommand('undo');
+    document.execCommand('undo');
     pageRef.current.focus();
   };
 
