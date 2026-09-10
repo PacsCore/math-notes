@@ -27,70 +27,88 @@ function App() {
   };
 
   const insertFormula = () => {
-  const mathField = document.createElement('math-field');
-  mathField.className = 'inline-formula';
-  mathField.style.fontSize = '20px';
+    const mathField = document.createElement('math-field');
+    mathField.className = 'inline-formula';
+    mathField.style.fontSize = '20px';
 
-  const range = savedRange.current;
-  let spaceNode;
-  if (range) {
-    range.deleteContents();
-    range.insertNode(mathField);
-    range.collapse(false);
-    spaceNode = document.createTextNode('\u00A0');
-    range.insertNode(spaceNode);
-  } else if (pageRef.current) {
-    spaceNode = document.createTextNode('\u00A0');
-    pageRef.current.appendChild(mathField);
-    pageRef.current.appendChild(spaceNode);
-  }
-
-  mathField.addEventListener('focus', () => {
-    lastFocusedMathField.current = mathField;
-  });
-
-  mathField.addEventListener('blur', () => {
-    if (mathField.value.trim() === '') {
-      mathField.remove();
-      if (spaceNode) spaceNode.remove();
+    const range = savedRange.current;
+    let spaceNode;
+    if (range) {
+      range.deleteContents();
+      range.insertNode(mathField);
+      range.collapse(false);
+      spaceNode = document.createTextNode('\u00A0');
+      range.insertNode(spaceNode);
+    } else if (pageRef.current) {
+      spaceNode = document.createTextNode('\u00A0');
+      pageRef.current.appendChild(mathField);
+      pageRef.current.appendChild(spaceNode);
     }
-    if (lastFocusedMathField.current === mathField) {
-      lastFocusedMathField.current = null;
-    }
-  });
 
-  mathField.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      mathField.blur();
+    mathField.addEventListener('focus', () => {
+      lastFocusedMathField.current = mathField;
+    });
 
-      const range = document.createRange();
-      const sel = window.getSelection();
-      if (mathField.nextSibling) {
-        range.setStartAfter(mathField.nextSibling);
-      } else {
-        range.setStartAfter(mathField);
+    mathField.addEventListener('blur', () => {
+      if (mathField.value.trim() === '') {
+        mathField.remove();
+        if (spaceNode) spaceNode.remove();
       }
-      range.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(range);
-      pageRef.current.focus();
-    }
-  });
+      if (lastFocusedMathField.current === mathField) {
+        lastFocusedMathField.current = null;
+      }
+    });
 
-  setTimeout(() => mathField.focus(), 0);
-};
+    mathField.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        mathField.blur();
+
+        const range = document.createRange();
+        const sel = window.getSelection();
+        if (mathField.nextSibling) {
+          range.setStartAfter(mathField.nextSibling);
+        } else {
+          range.setStartAfter(mathField);
+        }
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        pageRef.current.focus();
+      }
+    });
+
+    setTimeout(() => mathField.focus(), 0);
+  };
 
   const insertSymbol = (latex) => {
-  if (lastFocusedMathField.current) {
-    lastFocusedMathField.current.executeCommand(['insert', latex]);
-    lastFocusedMathField.current.focus();
-  }
-};
+    if (lastFocusedMathField.current) {
+      lastFocusedMathField.current.executeCommand(['insert', latex]);
+      lastFocusedMathField.current.focus();
+    }
+  };
 
   const formatText = (command, value = null) => {
     document.execCommand(command, false, value);
     pageRef.current.focus();
+  };
+
+  const setHeading = (tag) => {
+    document.execCommand('formatBlock', false, tag);
+    pageRef.current.focus();
+  };
+
+  const handlePageKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      document.execCommand('insertText', false, '\u00A0\u00A0\u00A0\u00A0');
+    }
+  };
+
+  const toggleMathKeyboard = () => {
+    if (window.mathVirtualKeyboard) {
+      window.mathVirtualKeyboard.visible = !window.mathVirtualKeyboard.visible;
+    }
   };
 
   return (
@@ -105,7 +123,10 @@ function App() {
       <div className="ribbon" onMouseDown={(e) => e.preventDefault()}>
         <div className="ribbon-group">
           <span className="ribbon-label">Einfügen</span>
-          <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
+          <div className="symbol-row">
+            <button className="primary-btn" onClick={insertFormula}>+ Formel</button>
+            <button onClick={toggleMathKeyboard} title="Mathe-Tastatur">⌨️</button>
+          </div>
         </div>
 
         <div className="ribbon-divider"></div>
@@ -118,6 +139,17 @@ function App() {
                 {s.label}
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="ribbon-divider"></div>
+
+        <div className="ribbon-group">
+          <span className="ribbon-label">Textgröße</span>
+          <div className="symbol-row">
+            <button onClick={() => setHeading('H1')}>H1</button>
+            <button onClick={() => setHeading('H2')}>H2</button>
+            <button onClick={() => setHeading('P')}>Normal</button>
           </div>
         </div>
 
@@ -144,6 +176,7 @@ function App() {
         suppressContentEditableWarning
         onMouseUp={saveSelection}
         onKeyUp={saveSelection}
+        onKeyDown={handlePageKeyDown}
       >
       </div>
     </div>

@@ -79,6 +79,7 @@ body:has(.app.dark) {
   position: sticky;
   top: 10px;
   z-index: 10;
+  flex-wrap: wrap;
 }
 
 .ribbon-group {
@@ -135,8 +136,9 @@ body:has(.app.dark) {
   font-family: 'Georgia', 'Times New Roman', serif;
   background: white;
   color: black;
-  min-height: 1123px;
   width: 794px;
+  min-height: 1123px;
+  margin: 0 auto;
   padding: 60px;
   font-size: 18px;
   line-height: 1.8;
@@ -145,19 +147,15 @@ body:has(.app.dark) {
   outline: none;
 }
 
-.page-sheet {
-  background: white;
-  color: black;
-  max-width: 850px;
-  margin: 0 auto;
-  min-height: 1000px;
-  padding: 60px;
-  font-size: 18px;
-  line-height: 1.8;
-  border-radius: 4px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-  outline: none;
+.page-sheet h1,
+.page-sheet h2,
+.page-sheet h3 {
+  font-family: inherit;
+  margin: 0.6em 0 0.3em;
 }
+
+.page-sheet h1 { font-size: 32px; }
+.page-sheet h2 { font-size: 26px; }
 
 .inline-formula {
   display: inline-block;
