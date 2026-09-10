@@ -4,6 +4,7 @@ import * as fpModule from 'function-plot';
 const functionPlot = fpModule.default?.default || fpModule.default || fpModule;
 import { Document, Packer, Paragraph, TextRun, ImageRun, HeadingLevel } from 'docx';
 import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import './App.css';
 
 const SYMBOLS = [
@@ -353,6 +354,27 @@ const exportToWord = async () => {
   URL.revokeObjectURL(url);
 };
 
+  const exportToPDF = async () => {
+    pageRef.current.classList.add('exporting-pdf');
+    try {
+      const canvas = await html2canvas(pageRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+      });
+      const pdf = new jsPDF({
+        unit: 'px',
+        format: [canvas.width, canvas.height],
+      });
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save('notizen.pdf');
+    } catch (err) {
+      console.error('PDF-Export-Fehler:', err);
+    } finally {
+      pageRef.current.classList.remove('exporting-pdf');
+    }
+  };
+
   const toggleMathKeyboard = () => {
     if (window.mathVirtualKeyboard) {
       window.mathVirtualKeyboard.visible = !window.mathVirtualKeyboard.visible;
@@ -443,6 +465,7 @@ const exportToWord = async () => {
           <span className="ribbon-label">{t('export')}</span>
           <div className="symbol-row">
             <button className="primary-btn" onClick={exportToWord}>{t('word')}</button>
+            <button className="primary-btn" onClick={exportToPDF}>⬇ PDF</button>
           </div>
         </div>
       </div>

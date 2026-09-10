@@ -224,3 +224,8 @@ math-field.exporting::part(virtual-keyboard-toggle),
 math-field.exporting::part(menu-toggle) {
   display: none !important;
 }
+
+.exporting-pdf math-field::part(virtual-keyboard-toggle),
+.exporting-pdf math-field::part(menu-toggle) {
+  display: none !important;
+}
