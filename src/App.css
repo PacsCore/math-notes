@@ -204,3 +204,8 @@ body:has(.app.dark) {
 .coord-plot svg {
   overflow: visible;
 }
+
+math-field.exporting::part(virtual-keyboard-toggle),
+math-field.exporting::part(menu-toggle) {
+  display: none !important;
+}

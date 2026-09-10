@@ -189,60 +189,109 @@ function App() {
     }
   };
 
-  const exportToWord = async () => {
+  const collectSegments = (node, fmt, segments) => {
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.textContent;
+    if (text.trim()) {
+      segments.push({ type: 'text', text, ...fmt });
+    }
+    return;
+  }
+
+  if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+  const tag = node.tagName.toLowerCase();
+
+  if (tag === 'math-field' || node.classList?.contains('coord-wrapper')) {
+    segments.push({ type: 'image', element: node });
+    return;
+  }
+
+  const newFmt = { ...fmt };
+  if (tag === 'b' || tag === 'strong' || node.style?.fontWeight === 'bold') newFmt.bold = true;
+  if (tag === 'u' || node.style?.textDecoration?.includes('underline')) newFmt.underline = true;
+  if (tag === 'h1') newFmt.heading = 'H1';
+  if (tag === 'h2') newFmt.heading = 'H2';
+
+  Array.from(node.childNodes).forEach((child) => collectSegments(child, newFmt, segments));
+
+  if (['div', 'p', 'h1', 'h2'].includes(tag)) {
+    segments.push({ type: 'break' });
+  }
+};
+
+const exportToWord = async () => {
+  const segments = [];
+  Array.from(pageRef.current.childNodes).forEach((n) => collectSegments(n, {}, segments));
+
   const children = [];
-  const nodes = Array.from(pageRef.current.childNodes);
+  let currentRuns = [];
+  let currentHeading = null;
 
-  for (const node of nodes) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const text = node.textContent.trim();
-      if (text) {
-        children.push(new Paragraph({ children: [new TextRun(text)] }));
-      }
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const tag = node.tagName.toLowerCase();
+  const flushParagraph = () => {
+    if (currentRuns.length > 0) {
+      children.push(
+        new Paragraph({
+          heading:
+            currentHeading === 'H1'
+              ? HeadingLevel.HEADING_1
+              : currentHeading === 'H2'
+              ? HeadingLevel.HEADING_2
+              : undefined,
+          children: currentRuns,
+        })
+      );
+    }
+    currentRuns = [];
+    currentHeading = null;
+  };
 
-      if (tag === 'h1' || tag === 'h2') {
-        children.push(
-          new Paragraph({
-            heading: tag === 'h1' ? HeadingLevel.HEADING_1 : HeadingLevel.HEADING_2,
-            children: [new TextRun(node.textContent)],
-          })
-        );
-      } else if (tag === 'math-field' || node.classList?.contains('coord-wrapper')) {
-        try {
-          const canvas = await html2canvas(node, { backgroundColor: '#ffffff', scale: 2 });
-          const imageData = canvas.toDataURL('image/png').split(',')[1];
-          const imgWidth = Math.min(canvas.width / 2, 500);
-          const imgHeight = (canvas.height / canvas.width) * imgWidth;
+  for (const seg of segments) {
+    if (seg.type === 'break') {
+      flushParagraph();
+    } else if (seg.type === 'text') {
+      currentHeading = seg.heading || currentHeading;
+      let size = 28;
+      if (currentHeading === 'H1') size = 44;
+      else if (currentHeading === 'H2') size = 36;
 
-          children.push(
-            new Paragraph({
-              children: [
-                new ImageRun({
-                  data: Uint8Array.from(atob(imageData), (c) => c.charCodeAt(0)),
-                  transformation: { width: imgWidth, height: imgHeight },
-                }),
-              ],
-            })
-          );
-        } catch (err) {
-          console.error('Bild-Export-Fehler:', err);
+      currentRuns.push(
+        new TextRun({
+          text: seg.text,
+          bold: seg.bold,
+          underline: seg.underline ? {} : undefined,
+          font: 'Georgia',
+          size: size,
+        })
+      );
+    } else if (seg.type === 'image') {
+      const isInline = seg.element.tagName.toLowerCase() === 'math-field';
+      if (!isInline) flushParagraph();
+      seg.element.classList.add('exporting');
+      try {
+        const canvas = await html2canvas(seg.element, { backgroundColor: '#ffffff', scale: 2 });
+        const imageData = canvas.toDataURL('image/png').split(',')[1];
+        const imgWidth = Math.min(canvas.width / 2, isInline ? 150 : 500);
+        const imgHeight = (canvas.height / canvas.width) * imgWidth;
+
+        const imageRun = new ImageRun({
+          data: Uint8Array.from(atob(imageData), (c) => c.charCodeAt(0)),
+          transformation: { width: imgWidth, height: imgHeight },
+        });
+
+        if (isInline) {
+          currentRuns.push(imageRun);
+        } else {
+          children.push(new Paragraph({ children: [imageRun] }));
         }
-      } else {
-        const text = node.textContent.trim();
-        if (text) {
-          const isBold = node.style?.fontWeight === 'bold' || tag === 'b' || tag === 'strong';
-          const isUnderline = node.style?.textDecoration?.includes('underline') || tag === 'u';
-          children.push(
-            new Paragraph({
-              children: [new TextRun({ text, bold: isBold, underline: isUnderline ? {} : undefined })],
-            })
-          );
-        }
+      } catch (err) {
+        console.error('Bild-Export-Fehler:', err);
+      } finally {
+        seg.element.classList.remove('exporting');
       }
     }
   }
+  flushParagraph();
 
   const doc = new Document({
     sections: [{ children }],
