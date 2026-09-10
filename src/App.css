@@ -178,7 +178,7 @@ body:has(.app.dark) {
 
 .coord-wrapper {
   display: block;
-  margin: 16px 0;
+  margin: 16px auto;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
