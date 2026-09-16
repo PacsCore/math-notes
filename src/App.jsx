@@ -33,6 +33,9 @@ const translations = {
     format: 'Format',
     removeHighlight: 'Markierung entfernen',
     export: 'Export',
+    page: 'Seite',
+    name: 'Name',
+    namePlaceholder: 'Dein Name',
     word: '⬇ Word',
     light: '☀️ Hell',
     dark: '🌙 Dunkel',
@@ -54,6 +57,9 @@ const translations = {
     format: 'Format',
     removeHighlight: 'Remove highlight',
     export: 'Export',
+    page: 'Page',
+    name: 'Name',
+    namePlaceholder: 'Your name',
     word: '⬇ Word',
     light: '☀️ Light',
     dark: '🌙 Dark',
@@ -69,6 +75,7 @@ function App() {
   const savedRange = useRef(null);
   const [darkMode, setDarkMode] = useState(true);
   const [language, setLanguage] = useState('de');
+  const [studentName, setStudentName] = useState('');
   const t = (key) => translations[language][key];
 
   const saveSelection = () => {
@@ -447,11 +454,47 @@ const exportToWord = async () => {
         scale: 2,
         useCORS: true,
       });
+      const pageWidthPx = canvas.width;
+      const pageHeightPx = Math.floor(pageWidthPx * (297 / 210));
+      const totalPages = Math.ceil(canvas.height / pageHeightPx);
       const pdf = new jsPDF({
         unit: 'px',
-        format: [canvas.width, canvas.height],
+        format: [pageWidthPx, pageHeightPx],
       });
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < totalPages; i += 1) {
+        if (i > 0) {
+          pdf.addPage([pageWidthPx, pageHeightPx]);
+        }
+
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = pageWidthPx;
+        pageCanvas.height = pageHeightPx;
+        const pageContext = pageCanvas.getContext('2d');
+        pageContext.fillStyle = '#ffffff';
+        pageContext.fillRect(0, 0, pageWidthPx, pageHeightPx);
+        pageContext.drawImage(
+          canvas,
+          0,
+          i * pageHeightPx,
+          pageWidthPx,
+          Math.min(pageHeightPx, canvas.height - i * pageHeightPx),
+          0,
+          0,
+          pageWidthPx,
+          Math.min(pageHeightPx, canvas.height - i * pageHeightPx)
+        );
+
+        pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidthPx, pageHeightPx);
+        pdf.setFontSize(12);
+        pdf.text(
+          `${studentName ? studentName + ' — ' : ''}${t('page')} ${i + 1} / ${totalPages}`,
+          pageWidthPx / 2,
+          pageHeightPx - 20,
+          { align: 'center' }
+        );
+      }
+
       pdf.save('notizen.pdf');
     } catch (err) {
       console.error('PDF-Export-Fehler:', err);
@@ -484,12 +527,29 @@ const exportToWord = async () => {
         </div>
       </div>
 
-      <div className="ribbon" onMouseDown={(e) => e.preventDefault()}>
+      <div className="ribbon" onMouseDown={(e) => {
+        if (e.target.tagName !== 'INPUT') e.preventDefault();
+      }}>
         <div className="ribbon-group">
           <span className="ribbon-label">{t('history')}</span>
           <div className="symbol-row">
             <button onClick={undo} title={t('undo')}>↺</button>
             <button onClick={redo} title={t('redo')}>↻</button>
+          </div>
+        </div>
+
+        <div className="ribbon-divider"></div>
+
+        <div className="ribbon-group">
+          <span className="ribbon-label">{t('name')}</span>
+          <div className="symbol-row">
+            <input
+              type="text"
+              value={studentName}
+              onChange={(e) => setStudentName(e.target.value)}
+              placeholder={t('namePlaceholder')}
+              className="name-input"
+            />
           </div>
         </div>
 

@@ -140,6 +140,21 @@ body:has(.app.dark) {
   background: var(--btn-hover);
 }
 
+.name-input {
+  font-size: 15px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--btn-bg);
+  color: var(--text);
+  width: 140px;
+}
+
+.name-input::placeholder {
+  color: var(--text);
+  opacity: 0.55;
+}
+
 .primary-btn {
   background: #4f7cff !important;
   color: white !important;
