@@ -99,6 +99,9 @@ function App() {
 
     mathField.addEventListener('focus', () => {
       lastFocusedMathField.current = mathField;
+      if (window.mathVirtualKeyboard) {
+        window.mathVirtualKeyboard.visible = true;
+      }
     });
 
     mathField.addEventListener('blur', () => {
