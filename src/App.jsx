@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import 'mathlive';
 import * as fpModule from 'function-plot';
 const functionPlot = fpModule.default?.default || fpModule.default || fpModule;
@@ -193,6 +193,68 @@ function App() {
   setTimeout(() => input.focus(), 0);
 };
 
+  const attachMathFieldListeners = (mathField) => {
+  mathField.addEventListener('focus', () => {
+    lastFocusedMathField.current = mathField;
+    if (window.mathVirtualKeyboard) {
+      window.mathVirtualKeyboard.visible = true;
+    }
+  });
+  mathField.addEventListener('blur', () => {
+    if (mathField.value.trim() === '') {
+      mathField.remove();
+    }
+    if (lastFocusedMathField.current === mathField) {
+      lastFocusedMathField.current = null;
+    }
+  });
+  mathField.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      mathField.blur();
+      const range = document.createRange();
+      const sel = window.getSelection();
+      if (mathField.nextSibling) {
+        range.setStartAfter(mathField.nextSibling);
+      } else {
+        range.setStartAfter(mathField);
+      }
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      pageRef.current.focus();
+    }
+  });
+};
+
+const attachCoordListeners = (wrapper) => {
+  const input = wrapper.querySelector('.coord-input');
+  const plotDiv = wrapper.querySelector('.coord-plot');
+  if (!input || !plotDiv) return;
+
+  const renderPlot = (fn) => {
+    plotDiv.innerHTML = '';
+    try {
+      functionPlot({
+        target: plotDiv,
+        width: 500,
+        height: 350,
+        grid: true,
+        data: fn ? [{ fn }] : [],
+      });
+    } catch (err) {
+      console.error('Plot-Fehler:', err);
+    }
+  };
+
+  input.addEventListener('input', () => renderPlot(input.value));
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') e.preventDefault();
+  });
+
+  renderPlot(input.value);
+};
+
   const insertSymbol = (latex) => {
     if (lastFocusedMathField.current) {
       lastFocusedMathField.current.executeCommand(['insert', latex]);
@@ -239,6 +301,26 @@ function App() {
       document.execCommand('redo');
     }
   };
+
+  const saveTimeout = useRef(null);
+
+const handlePageInput = () => {
+  if (saveTimeout.current) clearTimeout(saveTimeout.current);
+  saveTimeout.current = setTimeout(() => {
+    if (pageRef.current) {
+      localStorage.setItem('mathnotes-content', pageRef.current.innerHTML);
+    }
+  }, 500);
+};
+
+useEffect(() => {
+  const saved = localStorage.getItem('mathnotes-content');
+  if (saved && pageRef.current) {
+    pageRef.current.innerHTML = saved;
+    pageRef.current.querySelectorAll('math-field').forEach(attachMathFieldListeners);
+    pageRef.current.querySelectorAll('.coord-wrapper').forEach(attachCoordListeners);
+  }
+}, []);
 
   const collectSegments = (node, fmt, segments) => {
   if (node.nodeType === Node.TEXT_NODE) {
@@ -481,6 +563,7 @@ const exportToWord = async () => {
         onMouseUp={saveSelection}
         onKeyUp={saveSelection}
         onKeyDown={handlePageKeyDown}
+        onInput={handlePageInput}
       >
       </div>
     </div>

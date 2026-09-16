@@ -166,6 +166,19 @@ body:has(.app.dark) {
   outline: none;
 }
 
+.page-sheet {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 1121px,
+    #cc3333 1121px,
+    #cc3333 1123px,
+    transparent 1123px,
+    transparent 2244px
+  );
+  background-attachment: local;
+}
+
 .page-sheet:empty::before {
   content: var(--page-placeholder);
   color: #777;
