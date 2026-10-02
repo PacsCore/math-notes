@@ -82,7 +82,7 @@ body:has(.app.dark) {
   flex-wrap: nowrap;
   align-items: flex-start;
   gap: 12px;
-  width: auto;
+  width: 1000px;
   max-width: 100%;
   box-sizing: border-box;
   margin: 0 0 16px;
